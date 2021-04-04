@@ -32,12 +32,18 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="terrain_engine.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="camera.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain_engine.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

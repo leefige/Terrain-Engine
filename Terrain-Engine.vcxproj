@@ -23,11 +23,13 @@
     <None Include="VertexShader.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="terrain_engine.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.hpp" />
+    <ClInclude Include="terrain_engine.h" />
     <ClInclude Include="shader.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -138,7 +140,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;soil2.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;soil2-debug.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SOIL2_HOME)\lib;$(GLFW_HOME)\lib-vc2019;</AdditionalLibraryDirectories>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Link>

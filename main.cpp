@@ -16,6 +16,7 @@
 
 #include "shader.hpp"
 #include "camera.hpp"
+#include "terrain_engine.h"
 
 using namespace cg;
 namespace fs = std::filesystem;
@@ -28,7 +29,7 @@ int screenHeight = 600;
 const char* const HEIGHTMAP_FILE = "assets/heightmap.bmp";
 const char* const TEXTURE_FILE = "assets/terrain-texture3.bmp";
 const char* const DETAIL_FILE = "assets/detail.bmp";
-const char* const SKYBOX_FILES[5] = {
+const char* SKYBOX_FILES[5] = {
 	"assets/SkyBox/SkyBox0.bmp",
 	"assets/SkyBox/SkyBox1.bmp",
 	"assets/SkyBox/SkyBox2.bmp",
@@ -39,10 +40,7 @@ const char* const WATER_FILE = "assets/SkyBox/SkyBox5.bmp";
 
 // -----------------------------------------------------------
 
-int mapWidth = 0, mapHeight = 0, mapChannels = 0;
-unsigned char* heightmap = nullptr;
-
-GLuint skyboxTextures[5]{0};
+TerrainEngine engine;
 
 // -----------------------------------------------------------
 
@@ -101,34 +99,37 @@ int main()
 
 	// ---------------------------------------------------------------
 
-	/* load an image as a heightmap, forcing greyscale (so channels should be 1) */
-	heightmap = SOIL_load_image(
-		HEIGHTMAP_FILE,
-		&mapWidth, &mapHeight, &mapChannels,
-		SOIL_LOAD_L
-	);
+	// Load terrain engine resources
 
-	if (!heightmap) {
+	/* load an image as a heightmap, forcing greyscale (so channels should be 1) */
+	if (!engine.LoadHeightmap(HEIGHTMAP_FILE)) {
 		std::cerr << "Error loading heightmap '" << HEIGHTMAP_FILE << "'" << std::endl;
 		glfwTerminate();
 		return -3;
 	}
 
-	/* load skybox images as OpenGL texture */
-	for (int i = 0; i < 5; i++) {
-		skyboxTextures[i] = SOIL_load_OGL_texture(
-			SKYBOX_FILES[i],
-			SOIL_LOAD_AUTO,
-			SOIL_CREATE_NEW_ID,
-			SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
-		);
+	if (!engine.LoadLandTexture(TEXTURE_FILE)) {
+		std::cerr << "Error loading land texture '" << TEXTURE_FILE << "'" << std::endl;
+		glfwTerminate();
+		return -3;
+	}
 
-		/* check for an error during the load process */
-		if (skyboxTextures[i] == 0) {
-			std::cerr << "Error loading skybox image '" << SKYBOX_FILES[i] << "'" << std::endl;
-			glfwTerminate();
-			return -3;
-		}
+	if (!engine.LoadDetailTexture(DETAIL_FILE)) {
+		std::cerr << "Error loading land detail texture '" << DETAIL_FILE << "'" << std::endl;
+		glfwTerminate();
+		return -3;
+	}
+
+	if (!engine.LoadWaterTexture(WATER_FILE)) {
+		std::cerr << "Error loading water texture '" << WATER_FILE << "'" << std::endl;
+		glfwTerminate();
+		return -3;
+	}
+
+	if (!engine.LoadSkybox(SKYBOX_FILES)) {
+		std::cerr << "Error loading skybox images" << std::endl;
+		glfwTerminate();
+		return -3;
 	}
 
 	// -----------------------------------------
@@ -207,9 +208,6 @@ int main()
 	// properly de-allocate all resources
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-
-	/* done with the heightmap, free up the RAM */
-	SOIL_free_image_data(heightmap);
 
 	glfwTerminate();
 	return 0;
