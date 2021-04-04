@@ -13,7 +13,7 @@ class TerrainEngine
 public:
 	static constexpr GLsizei cubeVertNum = 36;
 	static constexpr GLsizei cubeAttrNum = 5;
-	static GLfloat cubeVertices[cubeVertNum * cubeAttrNum];
+	static const GLfloat cubeVertices[cubeVertNum * cubeAttrNum];
 
 	TerrainEngine();
 
@@ -46,7 +46,7 @@ public:
 	bool InstallSkyboxShaders(const char* vert, const char* frag);
 
 	/* drawing */
-	void DrawSkybox(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) const;
+	void DrawSkybox(const glm::mat4& view, const glm::mat4& projection) const;
 
 private:
 	int mapWidth_;

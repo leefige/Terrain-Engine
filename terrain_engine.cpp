@@ -8,56 +8,61 @@
 namespace cg
 {
 
-GLfloat TerrainEngine::cubeVertices[] = {
+const GLfloat TerrainEngine::cubeVertices[] = {
     // x     y     z    texture coordinates
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-    0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+    // back
+    -1.0f, -1.0f, -1.0f,  0.0f, 0.0f,
+    1.0f, -1.0f, -1.0f,  1.0f, 0.0f,
+    1.0f,  1.0f, -1.0f,  1.0f, 1.0f,
+    1.0f,  1.0f, -1.0f,  1.0f, 1.0f,
+    -1.0f,  1.0f, -1.0f,  0.0f, 1.0f,
+    -1.0f, -1.0f, -1.0f,  0.0f, 0.0f,
 
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    // right
+    1.0f,  1.0f,  1.0f,  1.0f, 1.0f,
+    1.0f,  1.0f, -1.0f,  0.0f, 1.0f,
+    1.0f, -1.0f, -1.0f,  0.0f, 0.0f,
+    1.0f, -1.0f, -1.0f,  0.0f, 0.0f,
+    1.0f, -1.0f,  1.0f,  1.0f, 0.0f,
+    1.0f,  1.0f,  1.0f,  1.0f, 1.0f,
 
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    // front
+    -1.0f, -1.0f,  1.0f,  1.0f, 0.0f,
+    1.0f, -1.0f,  1.0f,  0.0f, 0.0f,
+    1.0f,  1.0f,  1.0f,  0.0f, 1.0f,
+    1.0f,  1.0f,  1.0f,  0.0f, 1.0f,
+    -1.0f,  1.0f,  1.0f,  1.0f, 1.0f,
+    -1.0f, -1.0f,  1.0f,  1.0f, 0.0f,
 
-    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    // left
+    -1.0f,  1.0f,  1.0f,  0.0f, 1.0f,
+    -1.0f,  1.0f, -1.0f,  1.0f, 1.0f,
+    -1.0f, -1.0f, -1.0f,  1.0f, 0.0f,
+    -1.0f, -1.0f, -1.0f,  1.0f, 0.0f,
+    -1.0f, -1.0f,  1.0f,  0.0f, 0.0f,
+    -1.0f,  1.0f,  1.0f,  0.0f, 1.0f,
 
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    // top
+    -1.0f,  1.0f, -1.0f,  0.0f, 0.0f,
+    1.0f,  1.0f, -1.0f,  1.0f, 0.0f,
+    1.0f,  1.0f,  1.0f,  1.0f, 1.0f,
+    1.0f,  1.0f,  1.0f,  1.0f, 1.0f,
+    -1.0f,  1.0f,  1.0f,  0.0f, 1.0f,
+    -1.0f,  1.0f, -1.0f,  0.0f, 0.0f,
 
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+    // bottom
+    -1.0f, -1.0f, -1.0f,  0.0f, 1.0f,
+    1.0f, -1.0f, -1.0f,  1.0f, 1.0f,
+    1.0f, -1.0f,  1.0f,  1.0f, 0.0f,
+    1.0f, -1.0f,  1.0f,  1.0f, 0.0f,
+    -1.0f, -1.0f,  1.0f,  0.0f, 0.0f,
+    -1.0f, -1.0f, -1.0f,  0.0f, 1.0f,
 };
 
 TerrainEngine::TerrainEngine() :
     heightmap_(nullptr), mapHeight_(0), mapWidth_(0), mapChannels_(0),
-    waterTexture_(0), landTexture_(0), detailTexture_(0),
-    skyboxShader_(nullptr),
-    skyboxTextures_{0}
+    waterTexture_(0), landTexture_(0), detailTexture_(0), skyboxTextures_{0},
+    skyboxShader_(nullptr)
 {
     // Set up vertex data (and buffer(s)) and attribute pointers
     glGenVertexArrays(1, &skyboxVAO_);
@@ -136,10 +141,15 @@ bool TerrainEngine::InstallSkyboxShaders(const char* vert, const char* frag)
     return this->skyboxShader_ != nullptr;
 }
 
-void TerrainEngine::DrawSkybox(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) const
+void TerrainEngine::DrawSkybox(const glm::mat4& view, const glm::mat4& projection) const
 {
     skyboxShader_->Use();
     glBindVertexArray(skyboxVAO_);
+
+    static const glm::mat4 model = glm::translate(
+        glm::scale(glm::mat4(1.0f), glm::vec3(40.0f, 30.0f, 40.0f)),
+        glm::vec3(0.0f, 1.0f, 0.0f)
+    );
 
     // Get the uniform locations
     GLint modelLoc = glGetUniformLocation(skyboxShader_->Program(), "model");
@@ -153,9 +163,12 @@ void TerrainEngine::DrawSkybox(const glm::mat4& model, const glm::mat4& view, co
 
     for (int i = 0; i < 5; i++) {
         glBindTexture(GL_TEXTURE_2D, skyboxTextures_[i]);
-        glDrawArrays(GL_TRIANGLES, i * 6, (i + 1) * 6);
+        glDrawArrays(GL_TRIANGLES, i * 6, 6);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
+
+    // TODO: perhaps remove this later: draw a black floor
+    glDrawArrays(GL_TRIANGLES, 5 * 6, 6);
     glBindVertexArray(0);
 }
 

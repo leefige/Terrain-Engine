@@ -40,15 +40,11 @@ constexpr auto SKYBOX_FRAG_SHADER = "skybox.frag";
 // --------------------------------------
 
 // window settings
-int screenWidth = 800;
-int screenHeight = 600;
+int screenWidth = 1902;
+int screenHeight = 1080;
 bool keys[1024]{false};
 
-// Deltatime
-GLfloat deltaTime = 0.0f;    // Time between current frame and last frame
-GLfloat lastFrame = 0.0f;    // Time of last frame
-
-Camera camera(glm::vec3(0.0f, 0.0f, 0.0f));
+Camera camera(glm::vec3(0.0f, 3.0f, 0.0f));
 
 // -----------------------------------------------------------
 
@@ -57,7 +53,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void mouseCallback(GLFWwindow* window, double xpos, double ypos);
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-void moveCamera();
+void moveCamera(GLfloat deltaTime);
 void saveScreenshot();
 
 int main()
@@ -151,6 +147,8 @@ int main()
 	glViewport(0, 0, screenWidth, screenHeight);
 
 	// Update loop
+	GLfloat deltaTime = 0.0f;    // Time between current frame and last frame
+	GLfloat lastFrame = 0.0f;    // Time of last frame
 
 	while (glfwWindowShouldClose(window) == 0) {
 		// Calculate deltatime of current frame
@@ -162,7 +160,7 @@ int main()
 		glfwPollEvents();
 
 		/* your update code here */
-		moveCamera();
+		moveCamera(deltaTime);
 	
 		// draw background
 		GLfloat red = 0.2f;
@@ -177,8 +175,8 @@ int main()
 		// Projection
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom()), (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 100.0f);
 
-		// draw a triangle
-		engine.DrawSkybox(glm::mat4(1), view, projection);
+		// draw the skybox
+		engine.DrawSkybox(view, projection);
 
 		// swap buffer
 		glfwSwapBuffers(window);
@@ -196,7 +194,11 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 	// exit when pressing ESC
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, GL_TRUE);
-	} 	else if (key >= 0 && key < 1024) {
+	}
+	else if (key == GLFW_KEY_PRINT_SCREEN && action == GLFW_PRESS) {
+		saveScreenshot();
+	}
+	else if (key >= 0 && key < 1024) {
 		if (action == GLFW_PRESS) {
 			keys[key] = true;
 		} else if (action == GLFW_RELEASE) {
@@ -205,7 +207,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 	}
 }
 
-void moveCamera()
+void moveCamera(GLfloat deltaTime)
 {
 	// Camera controls
 	if (keys[GLFW_KEY_W]) {
@@ -224,8 +226,8 @@ void moveCamera()
 
 void mouseCallback(GLFWwindow* window, double xpos, double ypos)
 {
-	static GLfloat lastX = GLfloat(xpos);
-	static GLfloat lastY = GLfloat(ypos);
+	static GLfloat lastX = GLfloat(screenWidth) / 2;
+	static GLfloat lastY = GLfloat(screenHeight) / 2;
 
 	GLfloat xoffset = GLfloat(xpos) - lastX;
 	GLfloat yoffset = lastY - GLfloat(ypos); // Reversed since y-coordinates go from bottom to left
