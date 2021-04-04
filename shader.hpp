@@ -25,24 +25,21 @@ class Shader
 	explicit Shader(GLuint&& prog) : shaderProgram(prog) {}
 
 public:
-	virtual ~Shader()
-	{
-		glDeleteProgram(shaderProgram);
-	}
+	virtual ~Shader() { glDeleteProgram(shaderProgram); }
 
-	static std::unique_ptr<Shader> create(const std::string& vertexFilename, const std::string& fragmentFilename)
+	static std::unique_ptr<Shader> Create(const std::string& vertexFilename, const std::string& fragmentFilename)
 	{
 		// Build and compile our shader programs
 
 		// Vertex shaders
-		const GLuint vertexShader = compileShader(vertexFilename, GL_VERTEX_SHADER);
+		const GLuint vertexShader = CompileShader(vertexFilename, GL_VERTEX_SHADER);
 		if (vertexShader == 0) {
 			std::cerr << "Cannot create Vertex Shader from file '" << vertexFilename << "'." << std::endl;
 			return nullptr;
 		}
 
 		// Fragment shaders
-		const GLuint fragmentShader = compileShader(fragmentFilename, GL_FRAGMENT_SHADER);
+		const GLuint fragmentShader = CompileShader(fragmentFilename, GL_FRAGMENT_SHADER);
 		if (fragmentShader == 0) {
 			std::cerr << "Cannot create Fragment Shader from file '" << fragmentFilename << "'." << std::endl;
 			glDeleteShader(vertexShader);
@@ -74,24 +71,18 @@ public:
 		return std::unique_ptr<Shader>(new Shader(program));
 	}
 
-	const GLuint getProgram() const
-	{
-		return shaderProgram;
-	}
+	const GLuint Program() const { return shaderProgram; }
 
-	void use() const
-	{
-		glUseProgram(shaderProgram);
-	}
+	void Use() const { glUseProgram(shaderProgram); }
 
 private:
 
-	static const GLuint compileShader(const std::string& filename, GLenum type)
+	static const GLuint CompileShader(const std::string& filename, GLenum type)
 	{
 		std::ifstream fin;
 
 		// ensures ifstream objects can throw exceptions:
-		fin.exceptions(std::ifstream::badbit | std::ifstream::failbit);
+		fin.exceptions(std::ifstream::badbit);
 		try {
 			fin.open(filename, std::ios::in);
 		}
