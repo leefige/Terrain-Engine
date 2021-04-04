@@ -18,20 +18,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="FragmentShader.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="VertexShader.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="skybox.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="skybox.frag">
-      <Filter>Shaders</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="glad.c">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -52,5 +38,25 @@
     <ClInclude Include="terrain_engine.h">
       <Filter>头文件</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\FragmentShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\skybox.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\skybox.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\VertexShader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\water.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\water.vert">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

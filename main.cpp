@@ -34,8 +34,10 @@ constexpr const char* SKYBOX_FILES[5] = {
 };
 constexpr auto WATER_FILE = "assets/SkyBox/SkyBox5.bmp";
 
-constexpr auto SKYBOX_VERT_SHADER = "skybox.vert";
-constexpr auto SKYBOX_FRAG_SHADER = "skybox.frag";
+constexpr auto SKYBOX_VERT_SHADER = "shaders/skybox.vert";
+constexpr auto SKYBOX_FRAG_SHADER = "shaders/skybox.frag";
+constexpr auto WATER_VERT_SHADER = "shaders/water.vert";
+constexpr auto WATER_FRAG_SHADER = "shaders/water.frag";
 
 // --------------------------------------
 
@@ -134,9 +136,18 @@ int main()
 		return -3;
 	}
 
+	// -----------------------------------------
+
 	// Install GLSL Shader programs
+
 	if (!engine.InstallSkyboxShaders(SKYBOX_VERT_SHADER, SKYBOX_FRAG_SHADER)) {
-		std::cerr << "Error creating Shader Program" << std::endl;
+		std::cerr << "Error creating Shader Program for skybox" << std::endl;
+		glfwTerminate();
+		return -4;
+	}
+
+	if (!engine.InstallWaterShaders(WATER_VERT_SHADER, WATER_FRAG_SHADER)) {
+		std::cerr << "Error creating Shader Program for water" << std::endl;
 		glfwTerminate();
 		return -4;
 	}
@@ -175,8 +186,9 @@ int main()
 		// Projection
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom()), (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 100.0f);
 
-		// draw the skybox
+		// draw sky & water
 		engine.DrawSkybox(view, projection);
+		engine.DrawWater(view, projection, deltaTime);
 
 		// swap buffer
 		glfwSwapBuffers(window);

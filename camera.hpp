@@ -104,8 +104,8 @@ public:
         this->zoom -= yoffset;
 
         // constrains
-        if (this->zoom < 1.0f) {
-            this->zoom = 1.0f;
+        if (this->zoom < 15.0f) {
+            this->zoom = 15.0f;
         } else if (this->zoom > 45.0f) {
             this->zoom = 45.0f;
         }

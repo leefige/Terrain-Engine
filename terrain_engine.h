@@ -14,6 +14,7 @@ public:
 	static constexpr GLsizei cubeVertNum = 36;
 	static constexpr GLsizei cubeAttrNum = 5;
 	static const GLfloat cubeVertices[cubeVertNum * cubeAttrNum];
+	static const glm::mat4 worldModel;
 
 	TerrainEngine();
 
@@ -35,6 +36,11 @@ public:
 	GLuint DetailTexture() const { return detailTexture_; }
 	GLuint SkyboxTexture(int idx) const { return skyboxTextures_[idx]; }
 
+	GLfloat WaterSpeed() const { return waterSpeed_; }
+
+	/* Setters */
+	void SetWaterSpeed(GLfloat newSpeed) { waterSpeed_ = newSpeed; }
+
 	/* load images */
 	bool LoadHeightmap(const char* heightmapFile);
 	bool LoadSkybox(const char* const skyboxFiles[5]);
@@ -44,11 +50,15 @@ public:
 
 	/* load shaders */
 	bool InstallSkyboxShaders(const char* vert, const char* frag);
+	bool InstallWaterShaders(const char* vert, const char* frag);
 
 	/* drawing */
 	void DrawSkybox(const glm::mat4& view, const glm::mat4& projection) const;
+	void DrawWater(const glm::mat4& view, const glm::mat4& projection, GLfloat deltaTime) const;
 
 private:
+	GLfloat waterSpeed_;
+
 	int mapWidth_;
 	int mapHeight_; 
 	int mapChannels_;
@@ -63,6 +73,7 @@ private:
 	GLuint detailTexture_;
 
 	std::unique_ptr<Shader> skyboxShader_;
+	std::unique_ptr<Shader> waterShader_;
 
 	GLuint LoadTexture(const char* src);
 };

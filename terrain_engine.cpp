@@ -1,5 +1,7 @@
 #include "terrain_engine.h"
 
+#include <cmath>
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -7,6 +9,11 @@
 
 namespace cg
 {
+
+const glm::mat4 TerrainEngine::worldModel = glm::translate(
+    glm::scale(glm::mat4(1.0f), glm::vec3(40.0f, 30.0f, 40.0f)),
+    glm::vec3(0.0f, 1.0f, 0.0f)
+);
 
 const GLfloat TerrainEngine::cubeVertices[] = {
     // x     y     z    texture coordinates
@@ -50,7 +57,7 @@ const GLfloat TerrainEngine::cubeVertices[] = {
     -1.0f,  1.0f,  1.0f,  0.0f, 1.0f,
     -1.0f,  1.0f, -1.0f,  0.0f, 0.0f,
 
-    // bottom
+    // bottom: water
     -1.0f, -1.0f, -1.0f,  0.0f, 1.0f,
     1.0f, -1.0f, -1.0f,  1.0f, 1.0f,
     1.0f, -1.0f,  1.0f,  1.0f, 0.0f,
@@ -62,7 +69,7 @@ const GLfloat TerrainEngine::cubeVertices[] = {
 TerrainEngine::TerrainEngine() :
     heightmap_(nullptr), mapHeight_(0), mapWidth_(0), mapChannels_(0),
     waterTexture_(0), landTexture_(0), detailTexture_(0), skyboxTextures_{0},
-    skyboxShader_(nullptr)
+    skyboxShader_(nullptr), waterSpeed_(0.01)
 {
     // Set up vertex data (and buffer(s)) and attribute pointers
     glGenVertexArrays(1, &skyboxVAO_);
@@ -141,15 +148,17 @@ bool TerrainEngine::InstallSkyboxShaders(const char* vert, const char* frag)
     return this->skyboxShader_ != nullptr;
 }
 
+bool TerrainEngine::InstallWaterShaders(const char* vert, const char* frag)
+{
+    this->waterShader_ = Shader::Create(vert, frag);
+    return this->waterShader_ != nullptr;
+}
+
+
 void TerrainEngine::DrawSkybox(const glm::mat4& view, const glm::mat4& projection) const
 {
     skyboxShader_->Use();
     glBindVertexArray(skyboxVAO_);
-
-    static const glm::mat4 model = glm::translate(
-        glm::scale(glm::mat4(1.0f), glm::vec3(40.0f, 30.0f, 40.0f)),
-        glm::vec3(0.0f, 1.0f, 0.0f)
-    );
 
     // Get the uniform locations
     GLint modelLoc = glGetUniformLocation(skyboxShader_->Program(), "model");
@@ -157,18 +166,54 @@ void TerrainEngine::DrawSkybox(const glm::mat4& view, const glm::mat4& projectio
     GLint projLoc = glGetUniformLocation(skyboxShader_->Program(), "projection");
 
     // Pass the matrices to the shader
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(worldModel));
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
     for (int i = 0; i < 5; i++) {
         glBindTexture(GL_TEXTURE_2D, skyboxTextures_[i]);
+        // erase border
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glDrawArrays(GL_TRIANGLES, i * 6, 6);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    // TODO: perhaps remove this later: draw a black floor
+    glBindVertexArray(0);
+}
+
+void TerrainEngine::DrawWater(const glm::mat4& view, const glm::mat4& projection, GLfloat deltaTime) const
+{
+    waterShader_->Use();
+    glBindVertexArray(skyboxVAO_);
+
+    // Get the uniform locations
+    GLint modelLoc = glGetUniformLocation(waterShader_->Program(), "model");
+    GLint viewLoc = glGetUniformLocation(waterShader_->Program(), "view");
+    GLint projLoc = glGetUniformLocation(waterShader_->Program(), "projection");
+
+    // Pass the matrices to the shader
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(worldModel));
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+    GLint xShiftLoc = glGetUniformLocation(waterShader_->Program(), "xShift");
+    GLint yShiftLoc = glGetUniformLocation(waterShader_->Program(), "yShift");
+
+    static GLfloat xShift = 0;
+    static GLfloat yShift = 0;
+
+    xShift += deltaTime * waterSpeed_;
+    yShift += deltaTime * waterSpeed_ * 0.8f;
+
+    glUniform1f(xShiftLoc, xShift);
+    glUniform1f(xShiftLoc, yShift);
+
+    glBindTexture(GL_TEXTURE_2D, waterTexture_);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glDrawArrays(GL_TRIANGLES, 5 * 6, 6);
+    glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
 }
 

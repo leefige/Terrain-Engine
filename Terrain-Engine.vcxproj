@@ -19,16 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <None Include="FragmentShader.frag" />
-    <None Include="skybox.frag">
-      <SubType>GLSL</SubType>
-    </None>
-    <None Include="skybox.vert">
-      <SubType>GLSL</SubType>
-    </None>
-    <None Include="VertexShader.vert" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="terrain_engine.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
@@ -37,6 +27,14 @@
     <ClInclude Include="camera.hpp" />
     <ClInclude Include="terrain_engine.h" />
     <ClInclude Include="shader.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\FragmentShader.frag" />
+    <None Include="shaders\skybox.frag" />
+    <None Include="shaders\skybox.vert" />
+    <None Include="shaders\VertexShader.vert" />
+    <None Include="shaders\water.frag" />
+    <None Include="shaders\water.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
