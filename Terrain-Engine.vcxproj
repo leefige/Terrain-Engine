@@ -20,6 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="FragmentShader.frag" />
+    <None Include="skybox.frag">
+      <SubType>GLSL</SubType>
+    </None>
+    <None Include="skybox.vert">
+      <SubType>GLSL</SubType>
+    </None>
     <None Include="VertexShader.vert" />
   </ItemGroup>
   <ItemGroup>

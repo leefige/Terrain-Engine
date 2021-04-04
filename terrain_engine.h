@@ -1,13 +1,9 @@
 #ifndef CG_TERRAIN_ENGINE_H_
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
-#include <SOIL2.h>
+#include "shader.hpp"
 
 namespace cg
 {
@@ -15,13 +11,11 @@ namespace cg
 class TerrainEngine
 {
 public:
-	TerrainEngine() : 
-		heightmap_(nullptr), mapHeight_(0), mapWidth_(0), mapChannels_(0),
-		waterTexture_(0), landTexture_(0), detailTexture_(0),
-		skyboxTextures_{0}
-	{
+	static constexpr GLsizei cubeVertNum = 36;
+	static constexpr GLsizei cubeAttrNum = 5;
+	static GLfloat cubeVertices[cubeVertNum * cubeAttrNum];
 
-	}
+	TerrainEngine();
 
 	// forbid copying
 	TerrainEngine(const TerrainEngine&) = delete;
@@ -29,17 +23,7 @@ public:
 	TerrainEngine operator=(const TerrainEngine&) = delete;
 	TerrainEngine operator=(TerrainEngine&&) = delete;
 
-	virtual ~TerrainEngine() 
-	{
-		if (heightmap_ != nullptr) {
-			SOIL_free_image_data(heightmap_);
-		}
-
-		glDeleteTextures(1, &waterTexture_);
-		glDeleteTextures(1, &landTexture_);
-		glDeleteTextures(1, &detailTexture_);
-		glDeleteTextures(5, skyboxTextures_);
-	}
+	virtual ~TerrainEngine();
 
 	/* Getters */
 	const unsigned char* const Heightmap() const { return heightmap_; }
@@ -53,10 +37,16 @@ public:
 
 	/* load images */
 	bool LoadHeightmap(const char* heightmapFile);
-	bool LoadSkybox(const char* skyboxFiles[5]);
+	bool LoadSkybox(const char* const skyboxFiles[5]);
 	bool LoadWaterTexture(const char* waterFile);
 	bool LoadLandTexture(const char* landFile);
 	bool LoadDetailTexture(const char* detailFile);
+
+	/* load shaders */
+	bool InstallSkyboxShaders(const char* vert, const char* frag);
+
+	/* drawing */
+	void DrawSkybox(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) const;
 
 private:
 	int mapWidth_;
@@ -64,10 +54,15 @@ private:
 	int mapChannels_;
 	unsigned char* heightmap_;
 
+	GLuint skyboxVAO_;
+	GLuint skyboxVBO_;
+
 	GLuint skyboxTextures_[5];
 	GLuint waterTexture_;
 	GLuint landTexture_;
 	GLuint detailTexture_;
+
+	std::unique_ptr<Shader> skyboxShader_;
 
 	GLuint LoadTexture(const char* src);
 };

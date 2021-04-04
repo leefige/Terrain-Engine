@@ -18,44 +18,46 @@
 #include "camera.hpp"
 #include "terrain_engine.h"
 
-using namespace cg;
 namespace fs = std::filesystem;
-
-// window settings
-int screenWidth = 800;
-int screenHeight = 600;
+using namespace cg;
 
 // input image files
-const char* const HEIGHTMAP_FILE = "assets/heightmap.bmp";
-const char* const TEXTURE_FILE = "assets/terrain-texture3.bmp";
-const char* const DETAIL_FILE = "assets/detail.bmp";
-const char* SKYBOX_FILES[5] = {
+constexpr auto HEIGHTMAP_FILE = "assets/heightmap.bmp";
+constexpr auto TEXTURE_FILE = "assets/terrain-texture3.bmp";
+constexpr auto DETAIL_FILE = "assets/detail.bmp";
+constexpr const char* SKYBOX_FILES[5] = {
 	"assets/SkyBox/SkyBox0.bmp",
 	"assets/SkyBox/SkyBox1.bmp",
 	"assets/SkyBox/SkyBox2.bmp",
 	"assets/SkyBox/SkyBox3.bmp",
 	"assets/SkyBox/SkyBox4.bmp",
 };
-const char* const WATER_FILE = "assets/SkyBox/SkyBox5.bmp";
+constexpr auto WATER_FILE = "assets/SkyBox/SkyBox5.bmp";
+
+constexpr auto SKYBOX_VERT_SHADER = "skybox.vert";
+constexpr auto SKYBOX_FRAG_SHADER = "skybox.frag";
+
+// --------------------------------------
+
+// window settings
+int screenWidth = 800;
+int screenHeight = 600;
+bool keys[1024]{false};
+
+// Deltatime
+GLfloat deltaTime = 0.0f;    // Time between current frame and last frame
+GLfloat lastFrame = 0.0f;    // Time of last frame
+
+Camera camera(glm::vec3(0.0f, 0.0f, 0.0f));
 
 // -----------------------------------------------------------
 
-TerrainEngine engine;
-
-// -----------------------------------------------------------
-
-// normalized coordinates
-constexpr GLfloat vertices[] = {
-	// Positions        // Colors
-	0.5f,  -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  // Bottom Right
-	-0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,  // Bottom Left
-	0.0f,  0.5f,  0.0f, 0.0f, 0.0f, 1.0f   // Top 
-};
-
-// callbacks
+// helper functions
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
-
+void mouseCallback(GLFWwindow* window, double xpos, double ypos);
+void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+void moveCamera();
 void saveScreenshot();
 
 int main()
@@ -82,6 +84,8 @@ int main()
 	// register callbacks
 	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 	glfwSetKeyCallback(window, keyCallback);
+	glfwSetCursorPosCallback(window, mouseCallback);
+	glfwSetScrollCallback(window, scrollCallback);
 
 	// ---------------------------------------------------------------
 
@@ -96,10 +100,12 @@ int main()
 
 	// Setup OpenGL options
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
 
 	// ---------------------------------------------------------------
 
 	// Load terrain engine resources
+	TerrainEngine engine;
 
 	/* load an image as a heightmap, forcing greyscale (so channels should be 1) */
 	if (!engine.LoadHeightmap(HEIGHTMAP_FILE)) {
@@ -132,61 +138,31 @@ int main()
 		return -3;
 	}
 
-	// -----------------------------------------
-
 	// Install GLSL Shader programs
-	auto shaderProgram = Shader::Create("VertexShader.vert", "FragmentShader.frag");
-	if (shaderProgram == nullptr) {
+	if (!engine.InstallSkyboxShaders(SKYBOX_VERT_SHADER, SKYBOX_FRAG_SHADER)) {
 		std::cerr << "Error creating Shader Program" << std::endl;
 		glfwTerminate();
-		return -3;
+		return -4;
 	}
 
-	// ---------------------------------------------------------------
-
-	// Set up vertex data (and buffer(s)) and attribute pointers
-
-	// bind VAO
-	GLuint VAO;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-
-	// bind VBO, buffer data to it
-	GLuint VBO;
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	// set vertex attribute pointers
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-	// color attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-
-
-	// unbind VBO & VAO
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
-	// ---------------------------------------------------------------
+	// -----------------------------------------
 
 	// Define the viewport dimensions
 	glViewport(0, 0, screenWidth, screenHeight);
 
-
-	
-
-	// -----------------------------------------
-
 	// Update loop
 
 	while (glfwWindowShouldClose(window) == 0) {
+		// Calculate deltatime of current frame
+		GLfloat currentFrame = GLfloat(glfwGetTime());
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
 		// check event queue
 		glfwPollEvents();
 
 		/* your update code here */
+		moveCamera();
 	
 		// draw background
 		GLfloat red = 0.2f;
@@ -195,19 +171,18 @@ int main()
 		glClearColor(red, green, blue, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// Camera/View transformation
+		glm::mat4 view = camera.ViewMatrix();
+
+		// Projection
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom()), (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 100.0f);
+
 		// draw a triangle
-		shaderProgram->Use();
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindVertexArray(0);
+		engine.DrawSkybox(glm::mat4(1), view, projection);
 
 		// swap buffer
 		glfwSwapBuffers(window);
 	}
-
-	// properly de-allocate all resources
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
 
 	glfwTerminate();
 	return 0;
@@ -215,16 +190,56 @@ int main()
 
 /* ======================== helper functions ======================== */
 
+
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
 	// exit when pressing ESC
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, GL_TRUE);
-	}
-	else if (key == GLFW_KEY_PRINT_SCREEN && action == GLFW_PRESS) {
-		saveScreenshot();
+	} 	else if (key >= 0 && key < 1024) {
+		if (action == GLFW_PRESS) {
+			keys[key] = true;
+		} else if (action == GLFW_RELEASE) {
+			keys[key] = false;
+		}
 	}
 }
+
+void moveCamera()
+{
+	// Camera controls
+	if (keys[GLFW_KEY_W]) {
+		camera.ProcessKeyboard(Camera::Movement::FORWARD, deltaTime);
+	}
+	if (keys[GLFW_KEY_S]) {
+		camera.ProcessKeyboard(Camera::Movement::BACKWARD, deltaTime);
+	}
+	if (keys[GLFW_KEY_A]) {
+		camera.ProcessKeyboard(Camera::Movement::LEFT, deltaTime);
+	}
+	if (keys[GLFW_KEY_D]) {
+		camera.ProcessKeyboard(Camera::Movement::RIGHT, deltaTime);
+	}
+}
+
+void mouseCallback(GLFWwindow* window, double xpos, double ypos)
+{
+	static GLfloat lastX = GLfloat(xpos);
+	static GLfloat lastY = GLfloat(ypos);
+
+	GLfloat xoffset = GLfloat(xpos) - lastX;
+	GLfloat yoffset = lastY - GLfloat(ypos); // Reversed since y-coordinates go from bottom to left
+	lastX = GLfloat(xpos);
+	lastY = GLfloat(ypos);
+
+	camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	camera.ProcessMouseScroll(GLfloat(yoffset));
+}
+
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
