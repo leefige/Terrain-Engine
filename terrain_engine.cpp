@@ -206,7 +206,6 @@ void TerrainEngine::DrawWater(const glm::mat4& view, const glm::mat4& projection
     xShift += deltaTime * waveSpeed_;
     yShift += deltaTime * waveSpeed_ * 0.8f;
 
-    std::cout << sinf(xShift) << std::endl;
     glUniform1f(xShiftLoc, waveScale_ * sinf(xShift));
     glUniform1f(yShiftLoc, waveScale_ * cosf(yShift));
 
