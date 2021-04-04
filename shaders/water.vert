@@ -21,5 +21,6 @@ void main()
 {
     gl_Position = projection * view * model * vec4(position, 1.0f);
     // texture resolution: 10.0f
-    mapCoord = 10.0f * vec2(texCoord.x + xShift, texCoord.y + yShift);
+    vec2 scaledCoord = 10.0f * texCoord;
+    mapCoord = vec2(scaledCoord.x + xShift, scaledCoord.y + yShift);
 }

@@ -11,7 +11,7 @@ namespace cg
 {
 
 const glm::mat4 TerrainEngine::worldModel = glm::translate(
-    glm::scale(glm::mat4(1.0f), glm::vec3(40.0f, 30.0f, 40.0f)),
+    glm::scale(glm::mat4(1.0f), glm::vec3(50.0f, 30.0f, 50.0f)),
     glm::vec3(0.0f, 1.0f, 0.0f)
 );
 
@@ -69,7 +69,7 @@ const GLfloat TerrainEngine::cubeVertices[] = {
 TerrainEngine::TerrainEngine() :
     heightmap_(nullptr), mapHeight_(0), mapWidth_(0), mapChannels_(0),
     waterTexture_(0), landTexture_(0), detailTexture_(0), skyboxTextures_{0},
-    skyboxShader_(nullptr), waterSpeed_(0.01)
+    skyboxShader_(nullptr), waveSpeed_(0.3), waveScale_(0.3)
 {
     // Set up vertex data (and buffer(s)) and attribute pointers
     glGenVertexArrays(1, &skyboxVAO_);
@@ -203,11 +203,12 @@ void TerrainEngine::DrawWater(const glm::mat4& view, const glm::mat4& projection
     static GLfloat xShift = 0;
     static GLfloat yShift = 0;
 
-    xShift += deltaTime * waterSpeed_;
-    yShift += deltaTime * waterSpeed_ * 0.8f;
+    xShift += deltaTime * waveSpeed_;
+    yShift += deltaTime * waveSpeed_ * 0.8f;
 
-    glUniform1f(xShiftLoc, xShift);
-    glUniform1f(xShiftLoc, yShift);
+    std::cout << sinf(xShift) << std::endl;
+    glUniform1f(xShiftLoc, waveScale_ * sinf(xShift));
+    glUniform1f(yShiftLoc, waveScale_ * cosf(yShift));
 
     glBindTexture(GL_TEXTURE_2D, waterTexture_);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

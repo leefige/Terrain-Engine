@@ -36,10 +36,12 @@ public:
 	GLuint DetailTexture() const { return detailTexture_; }
 	GLuint SkyboxTexture(int idx) const { return skyboxTextures_[idx]; }
 
-	GLfloat WaterSpeed() const { return waterSpeed_; }
+	GLfloat WaveSpeed() const { return waveSpeed_; }
+	GLfloat WaveScale() const { return waveScale_; }
 
 	/* Setters */
-	void SetWaterSpeed(GLfloat newSpeed) { waterSpeed_ = newSpeed; }
+	void SetWaveSpeed(GLfloat newSpeed) { waveSpeed_ = newSpeed; }
+	void SetWaveScale(GLfloat newScale) { waveScale_ = newScale; }
 
 	/* load images */
 	bool LoadHeightmap(const char* heightmapFile);
@@ -57,7 +59,8 @@ public:
 	void DrawWater(const glm::mat4& view, const glm::mat4& projection, GLfloat deltaTime) const;
 
 private:
-	GLfloat waterSpeed_;
+	GLfloat waveSpeed_;
+	GLfloat waveScale_;
 
 	int mapWidth_;
 	int mapHeight_; 
