@@ -14,7 +14,7 @@ Construct a 3D scene and wander in it. This terrain engine supports:
 
 - Windows 10 Pro 20H2
 - Visual Studio 2019 Community v16.9.3
-- C++ 17
+- C++17
 - OpenGL Core Profile 4.6
 
 ### Libraries

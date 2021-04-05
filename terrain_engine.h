@@ -38,10 +38,12 @@ public:
 
 	GLfloat WaveSpeed() const { return waveSpeed_; }
 	GLfloat WaveScale() const { return waveScale_; }
+	GLfloat WaterAlpha() const { return waterAlpha_; }
 
 	/* Setters */
 	void SetWaveSpeed(GLfloat newSpeed) { waveSpeed_ = newSpeed; }
 	void SetWaveScale(GLfloat newScale) { waveScale_ = newScale; }
+	void SetWaterAlpha(GLfloat newAlpha) { waterAlpha_ = newAlpha; }
 
 	/* load images */
 	bool LoadHeightmap(const char* heightmapFile);
@@ -61,6 +63,7 @@ public:
 private:
 	GLfloat waveSpeed_;
 	GLfloat waveScale_;
+	GLfloat waterAlpha_;
 
 	int mapWidth_;
 	int mapHeight_; 
@@ -79,6 +82,7 @@ private:
 	std::unique_ptr<Shader> waterShader_;
 
 	GLuint LoadTexture(const char* src);
+	void DrawSkybox(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) const;
 };
 
 } /* namespace cg */
