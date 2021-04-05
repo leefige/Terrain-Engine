@@ -25,11 +25,9 @@ public:
     };
 
     // Constructor with vectors
-    Camera(glm::vec3 position,
-           glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f),
-           GLfloat speed = 3.0f,
-           GLfloat mouseSensitivity = 0.25f,
-           GLfloat yaw = -90.0f, GLfloat pitch = 0.0f, GLfloat zoom = 45.0f) : 
+    Camera(glm::vec3 position, GLfloat speed = 3.0f, GLfloat mouseSensitivity = 0.25f,
+           GLfloat yaw = -90.0f, GLfloat pitch = 0.0f, GLfloat zoom = 45.0f, 
+           glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f)) :
         front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(speed), mouseSensitivity(mouseSensitivity), zoom(zoom),
         position(position), worldUp(worldUp), yaw(yaw), pitch(pitch)
     {
@@ -38,28 +36,25 @@ public:
 
     /* Getters */
     glm::vec3 Position() const { return this->position; }
-
-    GLfloat Zoom() const { return this->zoom; }
-
+    glm::vec3 WorldUp() const { return this->worldUp; }
     GLfloat Speed() const { return this->movementSpeed; }
-    
+    GLfloat MouseSensitivity() const { return this->mouseSensitivity; }
     GLfloat Yaw() const { return this->yaw; }
-    
     GLfloat Pitch() const { return this->pitch; }
-
+    GLfloat Zoom() const { return this->zoom; }
     glm::vec3 Front() const { return this->front; }
-
     glm::vec3 Up() const { return this->up; }
-    
     glm::vec3 Right() const { return this->right; }
-
     // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
     glm::mat4 ViewMatrix() const { return glm::lookAt(this->position, this->position + this->front, this->up); }
 
     /* Setters */
     void SetSpeed(GLfloat newSpeed) { this->movementSpeed = newSpeed; }
-
     void SetMouseSensitivity(GLfloat newSensitivity) { this->mouseSensitivity= newSensitivity; }
+    void SetWorldUp(const glm::vec3& newWorldUp) { 
+        this->worldUp = newWorldUp;
+        this->UpdateCameraCoord();
+    }
 
     /* Callbacks */
     // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
@@ -102,7 +97,6 @@ public:
     void ProcessMouseScroll(GLfloat yoffset)
     {
         this->zoom -= yoffset;
-
         // constrains
         if (this->zoom < 15.0f) {
             this->zoom = 15.0f;

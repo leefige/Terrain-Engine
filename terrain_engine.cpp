@@ -11,7 +11,7 @@ namespace cg
 {
 
 const glm::mat4 TerrainEngine::worldModel = glm::translate(
-    glm::scale(glm::mat4(1.0f), glm::vec3(50.0f, 27.0f, 50.0f)),
+    glm::scale(glm::mat4(1.0f), skyboxSize),
     glm::vec3(0.0f, 1.0f, 0.0f)
 );
 

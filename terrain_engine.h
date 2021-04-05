@@ -11,8 +11,10 @@ namespace cg
 class TerrainEngine
 {
 public:
+	static constexpr glm::vec3 skyboxSize{40.0f, 21.5f, 40.0f};
 	static constexpr GLsizei cubeVertNum = 36;
 	static constexpr GLsizei cubeAttrNum = 5;
+
 	static const GLfloat cubeVertices[cubeVertNum * cubeAttrNum];
 	static const glm::mat4 worldModel;
 
