@@ -3,6 +3,8 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+#include <trimesh2/TriMesh.h>
+
 #include "shader.hpp"
 
 namespace cg
@@ -11,12 +13,15 @@ namespace cg
 class TerrainEngine
 {
 public:
-	static constexpr glm::vec3 skyboxSize{40.0f, 21.5f, 40.0f};
+	static constexpr glm::vec3 skyboxSize{80.0f, 43.0f, 80.0f};
+	static constexpr glm::vec3 terrainSize{30.0f, 7.0f, 30.0f};
+
 	static constexpr GLsizei cubeVertNum = 36;
 	static constexpr GLsizei cubeAttrNum = 5;
-
 	static const GLfloat cubeVertices[cubeVertNum * cubeAttrNum];
+
 	static const glm::mat4 worldModel;
+	static const glm::mat4 landModel;
 
 	TerrainEngine();
 
@@ -57,10 +62,12 @@ public:
 	/* load shaders */
 	bool InstallSkyboxShaders(const char* vert, const char* frag);
 	bool InstallWaterShaders(const char* vert, const char* frag);
+	bool InstallTerrainShaders(const char* vert, const char* frag);
 
 	/* drawing */
 	void DrawSkybox(const glm::mat4& view, const glm::mat4& projection) const;
 	void DrawWater(const glm::mat4& view, const glm::mat4& projection, GLfloat deltaTime) const;
+	void DrawTerrain(const glm::mat4& view, const glm::mat4& projection) const;
 
 private:
 	GLfloat waveSpeed_;
@@ -71,9 +78,14 @@ private:
 	int mapHeight_; 
 	int mapChannels_;
 	unsigned char* heightmap_;
+	trimesh::TriMesh terrain_;
+	int terrainDrawSize_;
 
 	GLuint skyboxVAO_;
 	GLuint skyboxVBO_;
+
+	GLuint terrainVAO_;
+	GLuint terrainVBO_;
 
 	GLuint skyboxTextures_[5];
 	GLuint waterTexture_;
@@ -82,6 +94,7 @@ private:
 
 	std::unique_ptr<Shader> skyboxShader_;
 	std::unique_ptr<Shader> waterShader_;
+	std::unique_ptr<Shader> terrainShader_;
 
 	GLuint LoadTexture(const char* src);
 	void DrawSkybox(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) const;

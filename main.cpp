@@ -12,7 +12,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <SOIL2.h>
+#include <SOIL2/SOIL2.h>
 
 #include "shader.hpp"
 #include "camera.hpp"
@@ -38,6 +38,8 @@ constexpr auto SKYBOX_VERT_SHADER = "shaders/skybox.vert";
 constexpr auto SKYBOX_FRAG_SHADER = "shaders/skybox.frag";
 constexpr auto WATER_VERT_SHADER = "shaders/water.vert";
 constexpr auto WATER_FRAG_SHADER = "shaders/water.frag";
+constexpr auto TERRAIN_VERT_SHADER = "shaders/terrain.vert";
+constexpr auto TERRAIN_FRAG_SHADER = "shaders/terrain.frag";
 
 // --------------------------------------
 
@@ -46,7 +48,7 @@ int screenWidth = 1902;
 int screenHeight = 1080;
 bool keys[1024]{false};
 
-Camera camera(glm::vec3(0.0f, 1.0f, 0.0f), 2.0f);
+Camera camera(glm::vec3(0.0f, 5.0f, 0.0f), 2.0f);
 
 // -----------------------------------------------------------
 
@@ -152,6 +154,12 @@ int main()
 		return -4;
 	}
 
+	if (!engine.InstallTerrainShaders(TERRAIN_VERT_SHADER, TERRAIN_FRAG_SHADER)) {
+		std::cerr << "Error creating Shader Program for terrain" << std::endl;
+		glfwTerminate();
+		return -4;
+	}
+
 	// -----------------------------------------
 
 	// Define the viewport dimensions
@@ -188,6 +196,7 @@ int main()
 
 		// draw sky & water
 		engine.DrawSkybox(view, projection);
+		engine.DrawTerrain(view, projection);
 		engine.DrawWater(view, projection, deltaTime);
 
 		// swap buffer

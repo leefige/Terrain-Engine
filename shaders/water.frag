@@ -1,5 +1,5 @@
 /*
- * GLSL Fragment Shader for skybox.
+ * GLSL Fragment Shader for ocean.
  */
 
 #version 460 core
