@@ -75,7 +75,7 @@ const GLfloat TerrainEngine::cubeVertices[] = {
 
 TerrainEngine::TerrainEngine() :
     heightmap_(nullptr), mapHeight_(0), mapWidth_(0), mapChannels_(0),
-    waterTexture_(0), landTexture_(0), detailTexture_(0), skyboxTextures_{0},
+    waterTexture_(0), skyboxTextures_{0}, terrainTextures_{0},
     skyboxShader_(nullptr), waveSpeed_(0.3f), waveScale_(0.3f), waterAlpha_(0.75f)
 {
     // Set up vertex data (and buffer(s)) and attribute pointers
@@ -106,9 +106,8 @@ TerrainEngine::~TerrainEngine()
     }
 
     glDeleteTextures(1, &waterTexture_);
-    glDeleteTextures(1, &landTexture_);
-    glDeleteTextures(1, &detailTexture_);
     glDeleteTextures(5, skyboxTextures_);
+    glDeleteTextures(2, terrainTextures_);
 
     glDeleteVertexArrays(1, &skyboxVAO_);
     glDeleteBuffers(1, &skyboxVBO_);
@@ -189,14 +188,11 @@ bool TerrainEngine::LoadWaterTexture(const char* waterFile)
     return (this->waterTexture_ = LoadTexture(waterFile)) != 0;
 }
 
-bool TerrainEngine::LoadLandTexture(const char* landFile)
+bool TerrainEngine::LoadTerrainTexture(const char* landFile, const char* detailFile)
 {
-    return (this->landTexture_ = LoadTexture(landFile)) != 0;
-}
-
-bool TerrainEngine::LoadDetailTexture(const char* detailFile)
-{
-    return (this->detailTexture_ = LoadTexture(detailFile)) != 0;
+    this->terrainTextures_[0] = LoadTexture(landFile);
+    this->terrainTextures_[1] = LoadTexture(detailFile);
+    return (this->terrainTextures_[0] != 0) && (this->terrainTextures_[1] != 0);
 }
 
 bool TerrainEngine::InstallSkyboxShaders(const char* vert, const char* frag)
@@ -269,6 +265,7 @@ void TerrainEngine::DrawWater(const glm::mat4& view, const glm::mat4& projection
     GLint alphaLoc = glGetUniformLocation(waterShader_->Program(), "waterAlpha");
     glUniform1f(alphaLoc, waterAlpha_);
 
+    glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, waterTexture_);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -296,6 +293,7 @@ void TerrainEngine::DrawSkybox(const glm::mat4& model, const glm::mat4& view, co
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
     for (int i = 0; i < 5; i++) {
+        glActiveTexture(GL_TEXTURE0 + 0);
         glBindTexture(GL_TEXTURE_2D, skyboxTextures_[i]);
         // erase border
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -322,8 +320,23 @@ void TerrainEngine::DrawTerrain(const glm::mat4& view, const glm::mat4& projecti
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-    glBindTexture(GL_TEXTURE_2D, landTexture_);
-    // erase border
+    // draw terrain texture
+    GLint scaleLoc = glGetUniformLocation(terrainShader_->Program(), "detailScale");
+    glUniform1f(scaleLoc, 30.0f);
+
+    GLint colorLoc = glGetUniformLocation(terrainShader_->Program(), "texColor");
+    GLint detailLoc = glGetUniformLocation(terrainShader_->Program(), "texDetail");
+    glUniform1i(colorLoc, 0);
+    glUniform1i(detailLoc, 1);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, terrainTextures_[0]);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, terrainTextures_[1]);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
     glDrawArrays(GL_TRIANGLES, 0, terrainDrawSize_);
     glBindTexture(GL_TEXTURE_2D, 0);
 

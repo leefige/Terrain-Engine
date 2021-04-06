@@ -114,14 +114,8 @@ int main()
 		return -3;
 	}
 
-	if (!engine.LoadLandTexture(TEXTURE_FILE)) {
+	if (!engine.LoadTerrainTexture(TEXTURE_FILE, DETAIL_FILE)) {
 		std::cerr << "Error loading land texture '" << TEXTURE_FILE << "'" << std::endl;
-		glfwTerminate();
-		return -3;
-	}
-
-	if (!engine.LoadDetailTexture(DETAIL_FILE)) {
-		std::cerr << "Error loading land detail texture '" << DETAIL_FILE << "'" << std::endl;
 		glfwTerminate();
 		return -3;
 	}

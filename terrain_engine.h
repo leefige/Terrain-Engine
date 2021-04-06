@@ -39,8 +39,7 @@ public:
 	int HeightmapHeight() const { return mapHeight_; }
 	int HeightmapChannels() const { return mapChannels_; }
 	GLuint WaterTexture() const { return waterTexture_; }
-	GLuint LandTexture() const { return landTexture_; }
-	GLuint DetailTexture() const { return detailTexture_; }
+	GLuint TerrainTexture(int idx) const { return terrainTextures_[idx]; }
 	GLuint SkyboxTexture(int idx) const { return skyboxTextures_[idx]; }
 
 	GLfloat WaveSpeed() const { return waveSpeed_; }
@@ -56,8 +55,7 @@ public:
 	bool LoadHeightmap(const char* heightmapFile);
 	bool LoadSkybox(const char* const skyboxFiles[5]);
 	bool LoadWaterTexture(const char* waterFile);
-	bool LoadLandTexture(const char* landFile);
-	bool LoadDetailTexture(const char* detailFile);
+	bool LoadTerrainTexture(const char* landFile, const char* detailFile);
 
 	/* load shaders */
 	bool InstallSkyboxShaders(const char* vert, const char* frag);
@@ -87,10 +85,9 @@ private:
 	GLuint terrainVAO_;
 	GLuint terrainVBO_;
 
-	GLuint skyboxTextures_[5];
 	GLuint waterTexture_;
-	GLuint landTexture_;
-	GLuint detailTexture_;
+	GLuint terrainTextures_[2];
+	GLuint skyboxTextures_[5];
 
 	std::unique_ptr<Shader> skyboxShader_;
 	std::unique_ptr<Shader> waterShader_;

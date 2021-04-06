@@ -5,12 +5,21 @@
 #version 460 core
 
 in vec2 mapCoord;
-uniform sampler2D tex2D;
 
 // output color
 out vec4 color;
 
+uniform sampler2D texColor;
+uniform sampler2D texDetail;
+
+uniform float detailScale;
+
 void main()
 {
-	color = texture2D(tex2D, mapCoord);
+	vec4 myColor = texture2D(texColor, mapCoord);
+	vec4 myDetail = texture2D(texDetail, detailScale * mapCoord);
+	//color = mix(myColor, myDetail, 0.5f);
+
+	// GL_ADD_SIGNED: a + b - 0.5
+	color = myColor + myDetail - 0.5f;
 }
