@@ -48,7 +48,7 @@ int screenWidth = 1902;
 int screenHeight = 1080;
 bool keys[1024]{false};
 
-Camera camera(glm::vec3(0.0f, 5.0f, 0.0f), 2.0f);
+Camera camera(glm::vec3(0.0f, 1.5f, 15.0f), glm::vec3(0.0f, 0.0f, -1.0f), 2.0f);
 
 // -----------------------------------------------------------
 

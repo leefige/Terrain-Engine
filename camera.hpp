@@ -25,10 +25,11 @@ public:
     };
 
     // Constructor with vectors
-    Camera(glm::vec3 position, GLfloat speed = 3.0f, GLfloat mouseSensitivity = 0.25f,
+    Camera(glm::vec3 position, glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f),
+           GLfloat speed = 3.0f, GLfloat mouseSensitivity = 0.25f,
            GLfloat yaw = -90.0f, GLfloat pitch = 0.0f, GLfloat zoom = 45.0f, 
            glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f)) :
-        front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(speed), mouseSensitivity(mouseSensitivity), zoom(zoom),
+        front(front), movementSpeed(speed), mouseSensitivity(mouseSensitivity), zoom(zoom),
         position(position), worldUp(worldUp), yaw(yaw), pitch(pitch)
     {
         this->UpdateCameraCoord();

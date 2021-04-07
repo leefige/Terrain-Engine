@@ -13,7 +13,7 @@ namespace cg
 class TerrainEngine
 {
 public:
-	static constexpr glm::vec3 skyboxSize{80.0f, 43.0f, 80.0f};
+	static constexpr glm::vec3 skyboxSize{100.0f, 54.0f, 100.0f};
 	static constexpr glm::vec3 terrainSize{30.0f, 7.0f, 30.0f};
 
 	static constexpr GLsizei cubeVertNum = 36;
@@ -95,6 +95,7 @@ private:
 
 	GLuint LoadTexture(const char* src);
 	void DrawSkybox(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) const;
+	void DrawTerrain(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, GLfloat upY) const;
 };
 
 } /* namespace cg */

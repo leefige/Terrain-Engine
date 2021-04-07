@@ -19,7 +19,7 @@ const glm::mat4 TerrainEngine::worldModel = glm::translate(
 
 const glm::mat4 TerrainEngine::landModel = glm::translate(
     glm::scale(glm::mat4(1.0f), terrainSize),
-    glm::vec3(-0.5f, -0.29f, -0.5f)
+    glm::vec3(-0.5f, -0.37f, -0.5f)
 );
 
 const GLfloat TerrainEngine::cubeVertices[] = {
@@ -218,16 +218,29 @@ void TerrainEngine::DrawSkybox(const glm::mat4& view, const glm::mat4& projectio
     DrawSkybox(worldModel, view, projection);
 }
 
+void TerrainEngine::DrawTerrain(const glm::mat4& view, const glm::mat4& projection) const
+{
+    DrawTerrain(landModel, view, projection, 1.0f);
+}
+
+
 void TerrainEngine::DrawWater(const glm::mat4& view, const glm::mat4& projection, GLfloat deltaTime) const
 {
-    // draw a mirrorred sky
-    const static glm::mat4 mirrorModel = glm::mat4({
+    const static glm::mat4 mirrorMat({
         {1, 0, 0, 0},
         {0, -1, 0, 0},
         {0, 0, 1, 0},
-        {0, 0, 0, 1}}) * worldModel;
+        {0, 0, 0, 1}});
 
-    DrawSkybox(mirrorModel, view, projection);
+    // draw a mirrored sky
+    const static glm::mat4 mirrorSkyModel = mirrorMat * worldModel;
+
+    DrawSkybox(mirrorSkyModel, view, projection);
+
+    // draw a mirrored terrain, y of "world up" should be -1
+    const static glm::mat4 mirrorLandModel = mirrorMat * landModel;
+
+    DrawTerrain(mirrorLandModel, view, projection, -1.0f);
 
     // --------------------------------
 
@@ -305,7 +318,7 @@ void TerrainEngine::DrawSkybox(const glm::mat4& model, const glm::mat4& view, co
     glBindVertexArray(0);
 }
 
-void TerrainEngine::DrawTerrain(const glm::mat4& view, const glm::mat4& projection) const
+void TerrainEngine::DrawTerrain(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, GLfloat upY) const
 {
     terrainShader_->Use();
     glBindVertexArray(terrainVAO_);
@@ -316,19 +329,25 @@ void TerrainEngine::DrawTerrain(const glm::mat4& view, const glm::mat4& projecti
     GLint projLoc = glGetUniformLocation(terrainShader_->Program(), "projection");
 
     // Pass the matrices to the shader
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(landModel));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-    // draw terrain texture
+    // scale of detail
     GLint scaleLoc = glGetUniformLocation(terrainShader_->Program(), "detailScale");
     glUniform1f(scaleLoc, 30.0f);
 
+    // terrain textures
     GLint colorLoc = glGetUniformLocation(terrainShader_->Program(), "texColor");
     GLint detailLoc = glGetUniformLocation(terrainShader_->Program(), "texDetail");
     glUniform1i(colorLoc, 0);
     glUniform1i(detailLoc, 1);
 
+    // y of world up
+    GLint upYLoc = glGetUniformLocation(terrainShader_->Program(), "upY");
+    glUniform1f(upYLoc, upY);
+
+    // assign texutres
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, terrainTextures_[0]);
 
