@@ -93,7 +93,7 @@ private:
 	std::unique_ptr<Shader> waterShader_;
 	std::unique_ptr<Shader> terrainShader_;
 
-	GLuint LoadTexture(const char* src);
+	GLuint LoadTexture(const char* src, bool repeat = false);
 	void DrawSkybox(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) const;
 	void DrawTerrain(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, GLfloat upY) const;
 };

@@ -185,13 +185,13 @@ bool TerrainEngine::LoadSkybox(const char* const skyboxFiles[5])
 
 bool TerrainEngine::LoadWaterTexture(const char* waterFile)
 {
-    return (this->waterTexture_ = LoadTexture(waterFile)) != 0;
+    return (this->waterTexture_ = LoadTexture(waterFile, true)) != 0;
 }
 
 bool TerrainEngine::LoadTerrainTexture(const char* landFile, const char* detailFile)
 {
     this->terrainTextures_[0] = LoadTexture(landFile);
-    this->terrainTextures_[1] = LoadTexture(detailFile);
+    this->terrainTextures_[1] = LoadTexture(detailFile, true);
     return (this->terrainTextures_[0] != 0) && (this->terrainTextures_[1] != 0);
 }
 
@@ -280,8 +280,6 @@ void TerrainEngine::DrawWater(const glm::mat4& view, const glm::mat4& projection
 
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, waterTexture_);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glDrawArrays(GL_TRIANGLES, 5 * 6, 6);
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
@@ -353,8 +351,6 @@ void TerrainEngine::DrawTerrain(const glm::mat4& model, const glm::mat4& view, c
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, terrainTextures_[1]);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     glDrawArrays(GL_TRIANGLES, 0, terrainDrawSize_);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -362,13 +358,17 @@ void TerrainEngine::DrawTerrain(const glm::mat4& model, const glm::mat4& view, c
     glBindVertexArray(0);
 }
 
-GLuint TerrainEngine::LoadTexture(const char* src)
+GLuint TerrainEngine::LoadTexture(const char* src, bool repeat)
 {
+    auto flags = SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT;
+    if (repeat) {
+        flags |= SOIL_FLAG_TEXTURE_REPEATS;
+    }
     auto res = SOIL_load_OGL_texture(
         src,
         SOIL_LOAD_AUTO,
         SOIL_CREATE_NEW_ID,
-        SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
+        flags
     );
     // to fix SOIL not unbind texture after loading flaw
     glBindTexture(GL_TEXTURE_2D, 0);
