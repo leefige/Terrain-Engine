@@ -157,7 +157,7 @@ bool TerrainEngine::LoadHeightmap(const char* heightmapFile)
         }
     }
 
-    terrainDrawSize_ = landVerts.size();
+    terrainDrawSize_ = int(landVerts.size());
 
     glBufferData(GL_ARRAY_BUFFER, landVerts.size() * sizeof(trimesh::point3), &landVerts.front(), GL_STATIC_DRAW);
 

@@ -186,7 +186,7 @@ int main()
 		glm::mat4 view = camera.ViewMatrix();
 
 		// Projection
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom()), (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 100.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom()), (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 1000.0f);
 
 		// draw sky & water
 		engine.DrawSkybox(view, projection);
