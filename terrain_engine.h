@@ -18,10 +18,13 @@ public:
 
 	static constexpr GLsizei cubeVertNum = 36;
 	static constexpr GLsizei cubeAttrNum = 5;
+	static constexpr GLsizei lampAttrNum = 6;
 	static const GLfloat cubeVertices[cubeVertNum * cubeAttrNum];
+	static const GLfloat lampVertices[cubeVertNum * lampAttrNum];
 
 	static const glm::mat4 worldModel;
 	static const glm::mat4 landModel;
+	static const glm::mat4 lampModel;
 
 	TerrainEngine();
 
@@ -61,11 +64,13 @@ public:
 	bool InstallSkyboxShaders(const char* vert, const char* frag);
 	bool InstallWaterShaders(const char* vert, const char* frag);
 	bool InstallTerrainShaders(const char* vert, const char* frag);
+	bool InstallLampShaders(const char* vert, const char* frag);
 
 	/* drawing */
 	void DrawSkybox(const glm::mat4& view, const glm::mat4& projection) const;
 	void DrawWater(const glm::mat4& view, const glm::mat4& projection, GLfloat deltaTime) const;
 	void DrawTerrain(const glm::mat4& view, const glm::mat4& projection) const;
+	void DrawLamp(const glm::mat4& view, const glm::mat4& projection) const;
 
 private:
 	GLfloat waveSpeed_;
@@ -79,6 +84,9 @@ private:
 	trimesh::TriMesh terrain_;
 	int terrainDrawSize_;
 
+	GLuint lampVAO_;
+	GLuint lampVBO_;
+
 	GLuint skyboxVAO_;
 	GLuint skyboxVBO_;
 
@@ -89,6 +97,7 @@ private:
 	GLuint terrainTextures_[2];
 	GLuint skyboxTextures_[5];
 
+	std::unique_ptr<Shader> lampShader_;
 	std::unique_ptr<Shader> skyboxShader_;
 	std::unique_ptr<Shader> waterShader_;
 	std::unique_ptr<Shader> terrainShader_;

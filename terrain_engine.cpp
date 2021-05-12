@@ -22,6 +22,11 @@ const glm::mat4 TerrainEngine::landModel = glm::translate(
     glm::vec3(-0.5f, -0.37f, -0.5f)
 );
 
+const glm::mat4 TerrainEngine::lampModel = glm::scale(
+    glm::translate(glm::mat4(1.0f), glm::vec3(-200, 115, 120)),
+    glm::vec3(10)
+);
+
 const GLfloat TerrainEngine::cubeVertices[] = {
     // x     y     z    texture coordinates
     // back
@@ -73,6 +78,50 @@ const GLfloat TerrainEngine::cubeVertices[] = {
     -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
 };
 
+const GLfloat TerrainEngine::lampVertices[] = {
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+        0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+
+        0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+        0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+};
+
 TerrainEngine::TerrainEngine() :
     heightmap_(nullptr), mapHeight_(0), mapWidth_(0), mapChannels_(0),
     waterTexture_(0), skyboxTextures_{0}, terrainTextures_{0},
@@ -97,6 +146,26 @@ TerrainEngine::TerrainEngine() :
     // unbind VBO & VAO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+
+    // Set up vertex data (and buffer(s)) and attribute pointers
+    glGenVertexArrays(1, &lampVAO_);
+    glBindVertexArray(lampVAO_);
+
+    glGenBuffers(1, &lampVBO_);
+    glBindBuffer(GL_ARRAY_BUFFER, lampVBO_);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(lampVertices), lampVertices, GL_STATIC_DRAW);
+
+    // set vertex attribute pointers
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, lampAttrNum * sizeof(GLfloat), (GLvoid*)0);
+    glEnableVertexAttribArray(0);
+    // texture attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, lampAttrNum * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
+
+    // unbind VBO & VAO
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 }
 
 TerrainEngine::~TerrainEngine()
@@ -111,6 +180,9 @@ TerrainEngine::~TerrainEngine()
 
     glDeleteVertexArrays(1, &skyboxVAO_);
     glDeleteBuffers(1, &skyboxVBO_);
+
+    glDeleteVertexArrays(1, &lampVAO_);
+    glDeleteBuffers(1, &lampVBO_);
 }
 
 bool TerrainEngine::LoadHeightmap(const char* heightmapFile)
@@ -213,6 +285,12 @@ bool TerrainEngine::InstallTerrainShaders(const char* vert, const char* frag)
     return this->terrainShader_ != nullptr;
 }
 
+bool TerrainEngine::InstallLampShaders(const char* vert, const char* frag)
+{
+    this->lampShader_ = Shader::Create(vert, frag);
+    return this->lampShader_ != nullptr;
+}
+
 void TerrainEngine::DrawSkybox(const glm::mat4& view, const glm::mat4& projection) const
 {
     DrawSkybox(worldModel, view, projection);
@@ -221,6 +299,27 @@ void TerrainEngine::DrawSkybox(const glm::mat4& view, const glm::mat4& projectio
 void TerrainEngine::DrawTerrain(const glm::mat4& view, const glm::mat4& projection) const
 {
     DrawTerrain(landModel, view, projection, 1.0f);
+}
+
+void TerrainEngine::DrawLamp(const glm::mat4& view, const glm::mat4& projection) const
+{
+    lampShader_->Use();
+
+    // Get the uniform locations
+    GLint modelLoc = glGetUniformLocation(lampShader_->Program(), "model");
+    GLint viewLoc = glGetUniformLocation(lampShader_->Program(), "view");
+    GLint projLoc = glGetUniformLocation(lampShader_->Program(), "projection");
+
+    // Pass the matrices to the shader
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lampModel));
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+    glUniform3fv(glGetUniformLocation(lampShader_->Program(), "lightColor"), 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 0.0f)));
+
+    glBindVertexArray(lampVAO_);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
 }
 
 

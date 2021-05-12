@@ -40,6 +40,8 @@ constexpr auto WATER_VERT_SHADER = "shaders/water.vert";
 constexpr auto WATER_FRAG_SHADER = "shaders/water.frag";
 constexpr auto TERRAIN_VERT_SHADER = "shaders/terrain.vert";
 constexpr auto TERRAIN_FRAG_SHADER = "shaders/terrain.frag";
+constexpr auto LAMP_VERT_SHADER = "shaders/lamp.vert";
+constexpr auto LAMP_FRAG_SHADER = "shaders/lamp.frag";
 
 // --------------------------------------
 
@@ -154,6 +156,12 @@ int main()
 		return -4;
 	}
 
+	if (!engine.InstallLampShaders(LAMP_VERT_SHADER, LAMP_FRAG_SHADER)) {
+		std::cerr << "Error creating Shader Program for lamp" << std::endl;
+		glfwTerminate();
+		return -4;
+	}
+
 	// -----------------------------------------
 
 	// Define the viewport dimensions
@@ -186,12 +194,13 @@ int main()
 		glm::mat4 view = camera.ViewMatrix();
 
 		// Projection
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom()), (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 1000.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom()), (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 10000.0f);
 
 		// draw sky & water
 		engine.DrawSkybox(view, projection);
 		engine.DrawTerrain(view, projection);
 		engine.DrawWater(view, projection, deltaTime);
+		engine.DrawLamp(view, projection);
 
 		// swap buffer
 		glfwSwapBuffers(window);

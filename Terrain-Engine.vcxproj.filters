@@ -64,5 +64,17 @@
     <None Include="shaders\terrain.vert">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="shaders\lamp.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\lamp.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\material.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\material.vert">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
