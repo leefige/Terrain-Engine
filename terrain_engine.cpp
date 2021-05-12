@@ -14,7 +14,7 @@ namespace cg
 
 const glm::vec3 lightColor{1.0f, 1.0f, 1.0f};
 glm::vec3 waterColor{0.3, 0.5, 1.0};
-glm::vec3 terranColor{0.7, 0.8, 0.7};
+glm::vec3 terranColor{1, 1, 1};
 GLfloat specularStrength = 0.4f;
 GLfloat shininess = 16.0f;
 
@@ -219,6 +219,7 @@ bool TerrainEngine::LoadHeightmap(const char* heightmapFile)
     terrain_.grid_width = mapWidth_;
 
     terrain_.triangulate_grid(false);
+    terrain_.need_normals();
 
     // VBO & VAO
     glGenVertexArrays(1, &terrainVAO_);
@@ -232,17 +233,21 @@ bool TerrainEngine::LoadHeightmap(const char* heightmapFile)
     for (const auto& f : terrain_.faces) {
         for (int i = 0; i < 3; i++) {
             landVerts.push_back(terrain_.vertices[f[i]]);
+            landVerts.push_back(terrain_.normals[f[i]]);
         }
     }
 
-    terrainDrawSize_ = int(landVerts.size());
+    terrainDrawSize_ = int(terrain_.faces.size() * 3);
 
     glBufferData(GL_ARRAY_BUFFER, landVerts.size() * sizeof(trimesh::point3), &landVerts.front(), GL_STATIC_DRAW);
 
     // set vertex attribute pointers
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
+    // normal attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
 
     // unbind VBO & VAO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -302,9 +307,9 @@ void TerrainEngine::DrawSkybox(const glm::mat4& view, const glm::mat4& projectio
     DrawSkybox(worldModel, view, projection);
 }
 
-void TerrainEngine::DrawTerrain(const glm::mat4& view, const glm::mat4& projection) const
+void TerrainEngine::DrawTerrain(const glm::mat4& view, const glm::mat4& projection, const glm::vec3& viewPos) const
 {
-    DrawTerrain(landModel, view, projection, 1.0f);
+    DrawTerrain(landModel, view, projection, 1.0f, viewPos, true);
 }
 
 void TerrainEngine::DrawLamp(const glm::mat4& view, const glm::mat4& projection) const
@@ -345,7 +350,7 @@ void TerrainEngine::DrawWater(const glm::mat4& view, const glm::mat4& projection
     // draw a mirrored terrain, y of "world up" should be -1
     const static glm::mat4 mirrorLandModel = mirrorMat * landModel;
 
-    DrawTerrain(mirrorLandModel, view, projection, -1.0f);
+    DrawTerrain(mirrorLandModel, view, projection, -1.0f, viewPos, false);
 
     // --------------------------------
 
@@ -411,16 +416,19 @@ void TerrainEngine::DrawWater(const glm::mat4& view, const glm::mat4& projection
     glUniform3f(matSpecularLoc, specularStrength, specularStrength, specularStrength);
     glUniform1f(matShineLoc, shininess);
 
-
+    // texture
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, waterTexture_);
+
     glDrawArrays(GL_TRIANGLES, 5 * 6, 6);
+    
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
 
     glDisable(GL_BLEND);
     glDepthMask(GL_TRUE);
 }
+
 
 void TerrainEngine::DrawSkybox(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) const
 {
@@ -450,7 +458,7 @@ void TerrainEngine::DrawSkybox(const glm::mat4& model, const glm::mat4& view, co
     glBindVertexArray(0);
 }
 
-void TerrainEngine::DrawTerrain(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, GLfloat upY) const
+void TerrainEngine::DrawTerrain(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, GLfloat upY, const glm::vec3& viewPos, bool useLight) const
 {
     terrainShader_->Use();
     glBindVertexArray(terrainVAO_);
@@ -479,6 +487,39 @@ void TerrainEngine::DrawTerrain(const glm::mat4& model, const glm::mat4& view, c
     GLint upYLoc = glGetUniformLocation(terrainShader_->Program(), "upY");
     glUniform1f(upYLoc, upY);
 
+    // lighting
+    if (useLight) {
+        glUniform1i(glGetUniformLocation(terrainShader_->Program(), "useLight"), 1);
+        glUniform3f(glGetUniformLocation(terrainShader_->Program(), "inNormal"), 0.0f, 1.0f, 0.0f);
+
+        GLint lightPosLoc = glGetUniformLocation(terrainShader_->Program(), "light.position");
+        GLint viewPosLoc = glGetUniformLocation(terrainShader_->Program(), "viewPos");
+        glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPos));
+        glUniform3fv(viewPosLoc, 1, glm::value_ptr(viewPos));
+
+        // light properties
+        glm::vec3 diffuseColor = lightColor * glm::vec3(1); // decrease the influence
+        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.4f); // low influence
+        GLint lightAmbientLoc = glGetUniformLocation(terrainShader_->Program(), "light.ambient");
+        GLint lightDiffuseLoc = glGetUniformLocation(terrainShader_->Program(), "light.diffuse");
+        GLint lightSpecularLoc = glGetUniformLocation(terrainShader_->Program(), "light.specular");
+        glUniform3fv(lightAmbientLoc, 1, glm::value_ptr(ambientColor));
+        glUniform3fv(lightDiffuseLoc, 1, glm::value_ptr(diffuseColor));
+        glUniform3f(lightSpecularLoc, 1.0f, 1.0f, 1.0f);
+
+        // material properties
+        GLint matAmbientLoc = glGetUniformLocation(terrainShader_->Program(), "material.ambient");
+        GLint matDiffuseLoc = glGetUniformLocation(terrainShader_->Program(), "material.diffuse");
+        GLint matSpecularLoc = glGetUniformLocation(terrainShader_->Program(), "material.specular");
+        GLint matShineLoc = glGetUniformLocation(terrainShader_->Program(), "material.shininess");
+        glUniform3fv(matAmbientLoc, 1, glm::value_ptr(terranColor));
+        glUniform3fv(matDiffuseLoc, 1, glm::value_ptr(terranColor));
+        glUniform3f(matSpecularLoc, specularStrength * 4, specularStrength * 4, specularStrength * 4);
+        glUniform1f(matShineLoc, shininess);
+    } else {
+        glUniform1i(glGetUniformLocation(terrainShader_->Program(), "useLight"), 0);
+    }
+
     // assign texutres
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, terrainTextures_[0]);
@@ -487,8 +528,11 @@ void TerrainEngine::DrawTerrain(const glm::mat4& model, const glm::mat4& view, c
     glBindTexture(GL_TEXTURE_2D, terrainTextures_[1]);
 
     glDrawArrays(GL_TRIANGLES, 0, terrainDrawSize_);
-    glBindTexture(GL_TEXTURE_2D, 0);
 
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
 }
 

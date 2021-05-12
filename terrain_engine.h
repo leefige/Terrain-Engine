@@ -71,7 +71,7 @@ public:
 	/* drawing */
 	void DrawSkybox(const glm::mat4& view, const glm::mat4& projection) const;
 	void DrawWater(const glm::mat4& view, const glm::mat4& projection, GLfloat deltaTime, const glm::vec3& viewPos) const;
-	void DrawTerrain(const glm::mat4& view, const glm::mat4& projection) const;
+	void DrawTerrain(const glm::mat4& view, const glm::mat4& projection, const glm::vec3& viewPos) const;
 	void DrawLamp(const glm::mat4& view, const glm::mat4& projection) const;
 
 private:
@@ -106,7 +106,7 @@ private:
 
 	GLuint LoadTexture(const char* src, bool repeat = false);
 	void DrawSkybox(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) const;
-	void DrawTerrain(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, GLfloat upY) const;
+	void DrawTerrain(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, GLfloat upY, const glm::vec3& viewPos, bool useLight) const;
 };
 
 } /* namespace cg */
