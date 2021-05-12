@@ -200,7 +200,7 @@ int main()
 		engine.DrawSkybox(view, projection);
 		engine.DrawTerrain(view, projection, camera.Position());
 		engine.DrawWater(view, projection, deltaTime, camera.Position());
-		engine.DrawLamp(view, projection);
+		//engine.DrawLamp(view, projection);
 
 		// swap buffer
 		glfwSwapBuffers(window);

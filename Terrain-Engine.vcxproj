@@ -29,16 +29,12 @@
     <ClInclude Include="shader.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\FragmentShader.frag" />
     <None Include="shaders\lamp.frag" />
     <None Include="shaders\lamp.vert" />
-    <None Include="shaders\material.frag" />
-    <None Include="shaders\material.vert" />
     <None Include="shaders\skybox.frag" />
     <None Include="shaders\skybox.vert" />
     <None Include="shaders\terrain.frag" />
     <None Include="shaders\terrain.vert" />
-    <None Include="shaders\VertexShader.vert" />
     <None Include="shaders\water.frag" />
     <None Include="shaders\water.vert" />
   </ItemGroup>

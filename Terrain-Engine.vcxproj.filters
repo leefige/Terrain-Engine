@@ -40,16 +40,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\FragmentShader.frag">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="shaders\skybox.frag">
       <Filter>Shaders</Filter>
     </None>
     <None Include="shaders\skybox.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="shaders\VertexShader.vert">
       <Filter>Shaders</Filter>
     </None>
     <None Include="shaders\water.frag">
@@ -68,12 +62,6 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="shaders\lamp.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="shaders\material.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="shaders\material.vert">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

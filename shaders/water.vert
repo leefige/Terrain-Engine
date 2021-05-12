@@ -21,9 +21,14 @@ uniform float yShift;
 
 uniform vec3 inNormal;
 
+uniform float time;
+
 void main()
 {
-    gl_Position = projection * view * model * vec4(position, 1.0f);
+    //float newY = position.y + 0.5 * cos(time);
+    vec4 worldPos = projection * view * model * vec4(position, 1.0f);
+    worldPos.y += abs(0.4 * (cos(time * 1.7) + 1));
+    gl_Position = worldPos;
     // texture resolution: 10.0f
     vec2 scaledCoord = 10.0f * texCoord;
     mapCoord = vec2(scaledCoord.x + xShift, scaledCoord.y + yShift);

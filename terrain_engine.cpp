@@ -131,7 +131,7 @@ const GLfloat TerrainEngine::lampVertices[] = {
 TerrainEngine::TerrainEngine() :
     heightmap_(nullptr), mapHeight_(0), mapWidth_(0), mapChannels_(0),
     waterTexture_(0), skyboxTextures_{0}, terrainTextures_{0},
-    skyboxShader_(nullptr), waveSpeed_(0.3f), waveScale_(0.3f), waterAlpha_(0.75f)
+    skyboxShader_(nullptr), waveSpeed_(0.2f), waveScale_(0.3f), waterAlpha_(0.75f)
 {
     // Set up vertex data (and buffer(s)) and attribute pointers
     glGenVertexArrays(1, &skyboxVAO_);
@@ -387,6 +387,7 @@ void TerrainEngine::DrawWater(const glm::mat4& view, const glm::mat4& projection
 
     GLint alphaLoc = glGetUniformLocation(waterShader_->Program(), "waterAlpha");
     glUniform1f(alphaLoc, waterAlpha_);
+    glUniform1f(glGetUniformLocation(waterShader_->Program(), "time"), xShift);
 
     // lighting
     glUniform3f(glGetUniformLocation(waterShader_->Program(), "inNormal"), 0.0f, 1.0f, 0.0f);
