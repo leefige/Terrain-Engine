@@ -199,7 +199,7 @@ int main()
 		// draw sky & water
 		engine.DrawSkybox(view, projection);
 		engine.DrawTerrain(view, projection);
-		engine.DrawWater(view, projection, deltaTime);
+		engine.DrawWater(view, projection, deltaTime, camera.Position());
 		engine.DrawLamp(view, projection);
 
 		// swap buffer

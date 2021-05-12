@@ -16,6 +16,8 @@ public:
 	static constexpr glm::vec3 skyboxSize{400.0f, 210.0f, 400.0f};
 	static constexpr glm::vec3 terrainSize{30.0f, 7.0f, 30.0f};
 
+	static constexpr glm::vec3 lightPos{-200, 115, 120};
+
 	static constexpr GLsizei cubeVertNum = 36;
 	static constexpr GLsizei cubeAttrNum = 5;
 	static constexpr GLsizei lampAttrNum = 6;
@@ -68,7 +70,7 @@ public:
 
 	/* drawing */
 	void DrawSkybox(const glm::mat4& view, const glm::mat4& projection) const;
-	void DrawWater(const glm::mat4& view, const glm::mat4& projection, GLfloat deltaTime) const;
+	void DrawWater(const glm::mat4& view, const glm::mat4& projection, GLfloat deltaTime, const glm::vec3& viewPos) const;
 	void DrawTerrain(const glm::mat4& view, const glm::mat4& projection) const;
 	void DrawLamp(const glm::mat4& view, const glm::mat4& projection) const;
 

@@ -12,6 +12,11 @@
 namespace cg
 {
 
+const glm::vec3 lightColor{1.0f, 1.0f, 1.0f};
+glm::vec3 materialColor{1, 1, 1};
+GLfloat specularStrength = 0.5f;
+GLfloat shininess = 32.0f;
+
 const glm::mat4 TerrainEngine::worldModel = glm::translate(
     glm::scale(glm::mat4(1.0f), skyboxSize),
     glm::vec3(0.0f, 0.5f, 0.0f)
@@ -23,7 +28,7 @@ const glm::mat4 TerrainEngine::landModel = glm::translate(
 );
 
 const glm::mat4 TerrainEngine::lampModel = glm::scale(
-    glm::translate(glm::mat4(1.0f), glm::vec3(-200, 115, 120)),
+    glm::translate(glm::mat4(1.0f), lightPos),
     glm::vec3(10)
 );
 
@@ -323,7 +328,7 @@ void TerrainEngine::DrawLamp(const glm::mat4& view, const glm::mat4& projection)
 }
 
 
-void TerrainEngine::DrawWater(const glm::mat4& view, const glm::mat4& projection, GLfloat deltaTime) const
+void TerrainEngine::DrawWater(const glm::mat4& view, const glm::mat4& projection, GLfloat deltaTime, const glm::vec3& viewPos) const
 {
     const static glm::mat4 mirrorMat({
         {1, 0, 0, 0},
@@ -376,6 +381,35 @@ void TerrainEngine::DrawWater(const glm::mat4& view, const glm::mat4& projection
 
     GLint alphaLoc = glGetUniformLocation(waterShader_->Program(), "waterAlpha");
     glUniform1f(alphaLoc, waterAlpha_);
+
+    // lighting
+    glUniform3f(glGetUniformLocation(waterShader_->Program(), "inNormal"), 0.0f, 1.0f, 0.0f);
+
+    GLint lightPosLoc = glGetUniformLocation(waterShader_->Program(), "light.position");
+    GLint viewPosLoc = glGetUniformLocation(waterShader_->Program(), "viewPos");
+    glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPos));
+    glUniform3fv(viewPosLoc, 1, glm::value_ptr(viewPos));
+
+    // light properties
+    glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); // decrease the influence
+    glm::vec3 ambientColor = diffuseColor * glm::vec3(0.15f); // low influence
+    GLint lightAmbientLoc = glGetUniformLocation(waterShader_->Program(), "light.ambient");
+    GLint lightDiffuseLoc = glGetUniformLocation(waterShader_->Program(), "light.diffuse");
+    GLint lightSpecularLoc = glGetUniformLocation(waterShader_->Program(), "light.specular");
+    glUniform3fv(lightAmbientLoc, 1, glm::value_ptr(ambientColor));
+    glUniform3fv(lightDiffuseLoc, 1, glm::value_ptr(diffuseColor));
+    glUniform3f(lightSpecularLoc, 1.0f, 1.0f, 1.0f);
+
+    // material properties
+    GLint matAmbientLoc = glGetUniformLocation(waterShader_->Program(), "material.ambient");
+    GLint matDiffuseLoc = glGetUniformLocation(waterShader_->Program(), "material.diffuse");
+    GLint matSpecularLoc = glGetUniformLocation(waterShader_->Program(), "material.specular");
+    GLint matShineLoc = glGetUniformLocation(waterShader_->Program(), "material.shininess");
+    glUniform3fv(matAmbientLoc, 1, glm::value_ptr(materialColor));
+    glUniform3fv(matDiffuseLoc, 1, glm::value_ptr(materialColor));
+    glUniform3f(matSpecularLoc, specularStrength, specularStrength, specularStrength);
+    glUniform1f(matShineLoc, shininess);
+
 
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, waterTexture_);
