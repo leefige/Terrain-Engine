@@ -13,9 +13,10 @@ namespace cg
 {
 
 const glm::vec3 lightColor{1.0f, 1.0f, 1.0f};
-glm::vec3 materialColor{1, 1, 1};
-GLfloat specularStrength = 0.5f;
-GLfloat shininess = 32.0f;
+glm::vec3 waterColor{0.3, 0.5, 1.0};
+glm::vec3 terranColor{0.7, 0.8, 0.7};
+GLfloat specularStrength = 0.4f;
+GLfloat shininess = 16.0f;
 
 const glm::mat4 TerrainEngine::worldModel = glm::translate(
     glm::scale(glm::mat4(1.0f), skyboxSize),
@@ -391,7 +392,7 @@ void TerrainEngine::DrawWater(const glm::mat4& view, const glm::mat4& projection
     glUniform3fv(viewPosLoc, 1, glm::value_ptr(viewPos));
 
     // light properties
-    glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); // decrease the influence
+    glm::vec3 diffuseColor = lightColor * glm::vec3(0.6f); // decrease the influence
     glm::vec3 ambientColor = diffuseColor * glm::vec3(0.15f); // low influence
     GLint lightAmbientLoc = glGetUniformLocation(waterShader_->Program(), "light.ambient");
     GLint lightDiffuseLoc = glGetUniformLocation(waterShader_->Program(), "light.diffuse");
@@ -405,8 +406,8 @@ void TerrainEngine::DrawWater(const glm::mat4& view, const glm::mat4& projection
     GLint matDiffuseLoc = glGetUniformLocation(waterShader_->Program(), "material.diffuse");
     GLint matSpecularLoc = glGetUniformLocation(waterShader_->Program(), "material.specular");
     GLint matShineLoc = glGetUniformLocation(waterShader_->Program(), "material.shininess");
-    glUniform3fv(matAmbientLoc, 1, glm::value_ptr(materialColor));
-    glUniform3fv(matDiffuseLoc, 1, glm::value_ptr(materialColor));
+    glUniform3fv(matAmbientLoc, 1, glm::value_ptr(waterColor));
+    glUniform3fv(matDiffuseLoc, 1, glm::value_ptr(waterColor));
     glUniform3f(matSpecularLoc, specularStrength, specularStrength, specularStrength);
     glUniform1f(matShineLoc, shininess);
 

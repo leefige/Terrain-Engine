@@ -54,5 +54,5 @@ void main()
         
     vec3 result = ambient + diffuse + specular;
 
-	color = vec4(result, waterAlpha);
+	color = vec4(sqrt(result), waterAlpha);
 }
